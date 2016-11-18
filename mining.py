@@ -2,6 +2,12 @@
 
 from collections import deque
 import json
+import community
+import sys
+import networkx as nx
+import matplotlib.pyplot as plt
+
+
 
 index = 0
 char_int_to_str = {}
@@ -22,7 +28,7 @@ counterQueue = deque([])
 characterQueue = deque([])
 
 
-with open('book2.txt','r') as f:
+with open('book3.txt','r') as f:
     for line in f:
         line = line.replace('’', ' ').replace(',', ' ').replace('“', ' ').replace('”', ' ').replace('.', ' ').replace('!', ' ').replace('?', ' ')
         for word in line.split():
@@ -41,7 +47,7 @@ with open('book2.txt','r') as f:
                     if(word != character):
                         print('Relation found between ' + word + ' and ' + character)
                         Matrix[char_str_to_int[character]][char_str_to_int[word]] += 1
-                        #Matrix[char_str_to_int[word]][char_str_to_int[character]] += 1
+                        Matrix[char_str_to_int[word]][char_str_to_int[character]] += 1
 
 
 print(Matrix)
@@ -61,16 +67,29 @@ for characterRow in range(Matrix.__len__()):
         sum = sum + Matrix[characterRow][character]
     nodeScores[char_int_to_str[characterRow]] = sum
 
+
+G = nx.Graph()
+for characterRow in range(Matrix.__len__()):
+    G.add_node(char_int_to_str[characterRow])
+
+for characterRow in range(Matrix.__len__()):
+    for character in range(Matrix.__len__() - (characterRow+1)):
+        G.add_edge(char_int_to_str[characterRow], char_int_to_str[character + characterRow+1], weight=Matrix[characterRow][character + (characterRow+1)])
+
+pg = nx.pagerank(G)
+parts = community.best_partition(G)
+
+
 for characterRow in range(Matrix.__len__()):
     characterInfo = {}
     characterInfo["id"] = char_int_to_str[characterRow]
-    characterInfo["group"] = 1
+    characterInfo["group"] = parts[char_int_to_str[characterRow]]
     characterInfo["weight"] = nodeScores[char_int_to_str[characterRow]]
     nodes.append(characterInfo)
 
 for characterRow in range(Matrix.__len__()):
     for character in range(Matrix.__len__() - (characterRow+1)):
-        if Matrix[characterRow][character + (characterRow+1)] > 5:
+        if Matrix[characterRow][character + (characterRow+1)] > 10:
             linkInfo = {}
             linkInfo["source"] = char_int_to_str[characterRow]
             linkInfo["target"] = char_int_to_str[character + (characterRow+1)]
@@ -82,6 +101,7 @@ data["nodes"] = nodes
 data["links"] = links
 
 
-
+print(pg)
 with open('gameofthrones.json', 'w') as outfile:
     json.dump(data, outfile)
+

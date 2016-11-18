@@ -36,19 +36,20 @@ d3.json("gameofthrones.json", function(error, graph) {
     .selectAll("line")
     .data(graph.links)
     .enter().append("line")
-      .attr("stroke-width", function(d) { return Math.sqrt(d.value)/5; });
+      .attr("stroke-width", function(d) { return Math.sqrt(d.value)/10; });
 
   var node = svg.append("g")
       .attr("class", "nodes")
     .selectAll("circle")
     .data(graph.nodes)
     .enter().append("circle")
-      .attr("r", function(d) { return d.weight/100+2; })
+      .attr("r", function(d) { return Math.sqrt(d.weight)/10 + 2; })
       .attr("fill", function(d) { return color(d.group); })
       .call(d3.drag()
           .on("start", dragstarted)
           .on("drag", dragged)
           .on("end", dragended));
+
 
   node.append("title")
       .text(function(d) { return d.id; });
