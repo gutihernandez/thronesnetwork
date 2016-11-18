@@ -4,14 +4,18 @@ sansa
 robert
 robb
 theon
-tyrion
+tyrion imp
 tywin
 cersei
-jaime
+jaime kingslayer
+wildling
+walker
 joffrey
-ned
-varys
+ned eddard
+varys spider
 shae
+ramsay
+roose
 shireen
 daario
 catelyn
@@ -20,30 +24,26 @@ mance
 margaery
 melisandre
 stannis
-drogo
+drogo khal
 hodor
 rickon
 renly
 gregor
-obelyn
-raegar
+sandor hound
+oberyn
 edmure
 craster
 osha
 bronn
 ygritte
-samwell
-sam
-khaleesi
+sam samwell
+khaleesi daenerys
 davos
 walder
 lysa
-petyr
-daenerys
+petyr littlefinger
 barristan
 jorah
-littlefinger
-eddard
 meera
 gilly
 loras
