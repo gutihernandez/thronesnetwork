@@ -6,6 +6,7 @@ robb
 theon
 tyrion imp
 tywin
+missandei
 cersei
 jaime kingslayer
 wildling
@@ -28,6 +29,9 @@ drogo khal
 hodor
 rickon
 renly
+faceless
+tommen
+worm
 gregor
 sandor hound
 oberyn
@@ -41,7 +45,7 @@ khaleesi daenerys
 davos
 walder
 lysa
-petyr littlefinger
+petyr littlefinger baelish
 barristan
 jorah
 meera

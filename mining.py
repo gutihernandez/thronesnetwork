@@ -13,7 +13,10 @@ index = 0
 char_int_to_str = {}
 char_str_to_int = {}
 
-
+'''
+reads the characters (with their nicknames) which are in characters.txt and puts them into dicts.
+To be able to give another name to the character you should put space and write the other name in the same line in characters.txt
+'''
 with open('characters.txt','r') as charactersPath:
     for line in charactersPath:
         nicknames = []
@@ -25,12 +28,13 @@ with open('characters.txt','r') as charactersPath:
 
 
 Matrix = [[0 for x in range(char_int_to_str.__len__())] for y in range(char_int_to_str.__len__())]
-
+'''
+counter queue is for in which range the '''
 counterQueue = deque([])
 characterQueue = deque([])
 
 
-with open('book3.txt','r') as f:
+with open('book5.txt','r') as f:
     for line in f:
         line = line.replace('’', ' ').replace(',', ' ').replace('“', ' ').replace('”', ' ').replace('.', ' ').replace('!', ' ').replace('?', ' ')
         for word in line.split():
@@ -38,7 +42,7 @@ with open('book3.txt','r') as f:
             for index in range(0, len(counterQueue)):
                 if(counterQueue.__len__() > index):
                     counterQueue[index] = counterQueue[index] + 1
-                    if counterQueue[index] == 20:
+                    if counterQueue[index] == 50:
                         counterQueue.popleft()
                         characterQueue.popleft()
 
