@@ -30,7 +30,7 @@ var simulation = d3.forceSimulation()
 
 d3.json("gameofthrones.json", function(error, graph) {
   if (error) throw error;
-
+  var withFriends = graph.withFriends;
   var link = svg.append("g")
       .attr("class", "links")
     .selectAll("line")
@@ -43,7 +43,12 @@ d3.json("gameofthrones.json", function(error, graph) {
     .selectAll("circle")
     .data(graph.nodes)
     .enter().append("circle")
-      .attr("r", function(d) { return Math.sqrt(d.weight)*20 + 1; })
+      .attr("r", function(d) {
+          if (withFriends)
+              var value = Math.sqrt(d.weight)*5 + 1; //for finding similar friends
+          else
+              var value = Math.sqrt(d.weight)*30 + 1;  //for regular pagerank
+          return value; })
       .attr("fill", function(d) { return color(d.group); })
       .call(d3.drag()
           .on("start", dragstarted)

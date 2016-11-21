@@ -2,15 +2,18 @@ jon
 arya
 sansa
 robert
+pycelle
 robb
 theon
 tyrion imp
 tywin
+ghost
 missandei
 cersei
+nymeria
 jaime kingslayer
 wildling
-walker
+walkers
 joffrey
 ned eddard
 varys spider
@@ -26,6 +29,7 @@ margaery
 melisandre
 stannis
 drogo khal
+jeyne
 hodor
 rickon
 renly

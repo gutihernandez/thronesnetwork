@@ -3,10 +3,8 @@
 from collections import deque
 import json
 import community
-import sys
+import operator
 import networkx as nx
-import matplotlib.pyplot as plt
-
 
 
 index = 0
@@ -17,6 +15,23 @@ char_str_to_int = {}
 reads the characters (with their nicknames) which are in characters.txt and puts them into dicts.
 To be able to give another name to the character you should put space and write the other name in the same line in characters.txt
 '''
+
+friendBase = {}
+sizeFriendsBase = 0
+with open('friends.txt','r') as charactersPath:
+    for line in charactersPath:
+        size = len(line.split())
+        value = 1.0 / size
+        for word in line.split():
+            sizeFriendsBase += 1
+            friendBase[word] = value
+
+withFriends = False
+if sizeFriendsBase > 0:
+    withFriends = True
+
+result = {}
+
 with open('characters.txt','r') as charactersPath:
     for line in charactersPath:
         nicknames = []
@@ -34,7 +49,7 @@ counterQueue = deque([])
 characterQueue = deque([])
 
 
-with open('book5.txt','r') as f:
+with open('book3.txt','r') as f:
     for line in f:
         line = line.replace('’', ' ').replace(',', ' ').replace('“', ' ').replace('”', ' ').replace('.', ' ').replace('!', ' ').replace('?', ' ')
         for word in line.split():
@@ -61,8 +76,6 @@ with open('book5.txt','r') as f:
         print(char_int_to_str[characterRow] + ', ' + char_int_to_str[character + (characterRow+1)] + ' --> ' + (str)(Matrix[characterRow][character + (characterRow+1)]))
 '''
 
-print(Matrix)
-
 nodes = []
 links = []
 nodeScores = {}
@@ -81,15 +94,33 @@ for characterRow in range(Matrix.__len__()):
     for character in range(Matrix.__len__() - (characterRow+1)):
         G.add_edge(char_int_to_str[characterRow][0], char_int_to_str[character + characterRow+1][0], weight=Matrix[characterRow][character + (characterRow+1)])
 
+
+for characterRow in range(Matrix.__len__()):
+    if (char_int_to_str[characterRow][0]) not in friendBase and withFriends:
+        friendBase[(char_int_to_str[characterRow][0])] = 0
+
+if withFriends:
+    similarityRanks = nx.pagerank(G, personalization=friendBase)
+else:
+    similarityRanks = nx.pagerank(G)
+
 pg = nx.pagerank(G)
+
+
 parts = community.best_partition(G)
+
+for character in pg:
+    result[character] = similarityRanks[character] / pg[character]
 
 
 for characterRow in range(Matrix.__len__()):
     characterInfo = {}
     characterInfo["id"] = char_int_to_str[characterRow][0]
     characterInfo["group"] = parts[char_int_to_str[characterRow][0]]
-    characterInfo["weight"] = pg[char_int_to_str[characterRow][0]]
+    if withFriends is True:
+        characterInfo["weight"] = result[char_int_to_str[characterRow][0]]
+    else:
+        characterInfo["weight"] = pg[char_int_to_str[characterRow][0]]
     nodes.append(characterInfo)
 
 for characterRow in range(Matrix.__len__()):
@@ -104,9 +135,20 @@ for characterRow in range(Matrix.__len__()):
 data = {}
 data["nodes"] = nodes
 data["links"] = links
+data["withFriends"] = False
+if withFriends:
+    data["withFriends"] = True
 
 
-print(pg)
+
+sorted_x = sorted(result.items(), key=operator.itemgetter(1), reverse=True)
+
+index = 0
+for character in sorted_x:
+        if index >= sizeFriendsBase and index < (sizeFriendsBase+3):
+            print(character)
+        index += 1
+
 with open('gameofthrones.json', 'w') as outfile:
     json.dump(data, outfile)
 
