@@ -35,6 +35,7 @@ rickon
 renly
 faceless
 tommen
+myranda
 worm
 gregor
 sandor hound

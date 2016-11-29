@@ -11,8 +11,8 @@
   stroke: #fff;
   stroke-width: 1.5px;
 }
-
 </style>
+
 <svg width="960" height="600"></svg>
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script>
@@ -30,6 +30,7 @@ var simulation = d3.forceSimulation()
 
 d3.json("gameofthrones.json", function(error, graph) {
   if (error) throw error;
+    console.log("asdas");
   var withFriends = graph.withFriends;
   var link = svg.append("g")
       .attr("class", "links")
