@@ -132,8 +132,8 @@ for characterRow in range(Matrix.__len__()):
     for character in range(Matrix.__len__() - (characterRow+1)):
         if Matrix[characterRow][character + (characterRow+1)] > 3:
             linkInfo = {}
-            linkInfo["source"] = characterRow
-            linkInfo["target"] = character + (characterRow+1)
+            linkInfo["source"] = char_int_to_str[characterRow][0]
+            linkInfo["target"] = char_int_to_str[character + (characterRow+1)][0]
             linkInfo["value"] = Matrix[characterRow][character + (characterRow+1)]
             links.append(linkInfo)
 
