@@ -5,6 +5,8 @@ import json
 from scipy import spatial
 import pickle
 from math import log
+import time
+
 
 import community
 import operator
@@ -80,14 +82,8 @@ for characterData in characterCorpus:
                 else:
                     output[word] = 1
             json.dump(output, fp)
+
 '''
-
-path = 'characterCorpus'
-documents = [f for f in os.listdir(path) if f.endswith('.json')]
-documents.remove("TFIDFScores.json")
-documents.remove("IDFScores.json")
-print documents
-
 
 def termFrequency(term, document):
     content = ""
@@ -149,10 +145,19 @@ def distance(firstCharacter, secondCharacter):
     result = 1 - spatial.distance.cosine(firstCharacter, secondCharacter)
     return result
 
+path = 'characterCorpus'
+documents = [f for f in os.listdir(path) if f.endswith('.json')]
+documents.remove("TFIDFScores.json")
+documents.remove("IDFScores.json")
+print documents
 
+'''
+start = time.time()
 calculateAllIDF(documents)
 calculateTFIDF(documents)
-
+end = time.time()
+print("Time elapsed: " + str(end - start))
+'''
 
 first = []
 second = []
@@ -165,12 +170,13 @@ def convertDictToList(dict, characterName):
                 resultList.append(dict[character][score])
     return resultList
 
-'''
+''''''
 with open("characterCorpus/TFIDFScores.json") as data_file:
     results = json.load(data_file)
 
-first = convertDictToList(results, "joffrey.json")
-second = convertDictToList(results, "tommen.json")
+for firstCharacter in documents:
+    for secondCharacter in documents:
+        first = convertDictToList(results, firstCharacter)
+        second = convertDictToList(results, secondCharacter)
+        print "Distance between " + firstCharacter + " and " + secondCharacter + " is: " + str(distance(first, second))
 
-print distance(first, second)
-'''

@@ -1,6 +1,7 @@
 jon
 arya
 sansa
+tormund
 robert
 pycelle
 robb
@@ -24,6 +25,7 @@ shireen
 daario
 catelyn
 bran
+brienne
 mance
 margaery
 melisandre
@@ -43,10 +45,11 @@ oberyn
 edmure
 craster
 osha
+podrick
 bronn
 ygritte
 sam samwell
-khaleesi daenerys
+dany khaleesi daenerys
 davos
 walder
 lysa
