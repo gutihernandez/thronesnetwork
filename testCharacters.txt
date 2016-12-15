@@ -1,3 +1,8 @@
-jon john
+jon
+sam samwell
+cersei
+jaime
+tommen
+joffrey
 arya
 sansa
