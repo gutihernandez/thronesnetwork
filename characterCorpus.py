@@ -84,6 +84,8 @@ for characterData in characterCorpus:
 
 path = 'characterCorpus'
 documents = [f for f in os.listdir(path) if f.endswith('.json')]
+documents.remove("TFIDFScores.json")
+documents.remove("IDFScores.json")
 print documents
 
 
