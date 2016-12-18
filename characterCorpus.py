@@ -149,7 +149,7 @@ path = 'characterCorpus'
 documents = [f for f in os.listdir(path) if f.endswith('.json')]
 documents.remove("TFIDFScores.json")
 documents.remove("IDFScores.json")
-print documents
+#print documents
 
 '''
 start = time.time()
@@ -173,10 +173,10 @@ def convertDictToList(dict, characterName):
 ''''''
 with open("characterCorpus/TFIDFScores.json") as data_file:
     results = json.load(data_file)
-
+'''
 for firstCharacter in documents:
     for secondCharacter in documents:
         first = convertDictToList(results, firstCharacter)
         second = convertDictToList(results, secondCharacter)
         print "Distance between " + firstCharacter + " and " + secondCharacter + " is: " + str(distance(first, second))
-
+'''

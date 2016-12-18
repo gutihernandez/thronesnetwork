@@ -1,38 +1,33 @@
 # -*- coding: utf-8 -*-
-
+import os
 from collections import deque
 import json
 import community
 import operator
 import networkx as nx
 
+from characterCorpus import convertDictToList, distance
 
 index = 0
 char_int_to_str = {}
 char_str_to_int = {}
 
-'''
-reads the characters (with their nicknames) which are in characters.txt and puts them into dicts.
-To be able to give another name to the character you should put space and write the other name in the same line in characters.txt
-'''
-
-
-
+friends = []
 friendBase = {}
-sizeFriendsBase = 0
-with open('friends.txt','r') as charactersPath:
-    for line in charactersPath:
-        size = len(line.split())
-        value = 1.0 / size
-        for word in line.split():
-            sizeFriendsBase += 1
-            friendBase[word] = value
 
+sizeFriendsBase = len(friends)
+for word in friends:
+    friendBase[word] = 1.0 / sizeFriendsBase
 withFriends = False
 if sizeFriendsBase > 0:
     withFriends = True
 
 result = {}
+
+'''
+reads the characters (with their nicknames) which are in characters.txt and puts them into dicts.
+To be able to give another name to the character you should put space and write the other name in the same line in characters.txt
+'''
 
 with open('characters.txt','r') as charactersPath:
     for line in charactersPath:
@@ -50,7 +45,6 @@ counter queue is for in which range the '''
 counterQueue = deque([])
 characterQueue = deque([])
 
-allBooks = ['book1.txt', 'book2.txt', 'book3.txt', 'book4.txt', 'book5.txt']
 book = ['book3.txt']
 for book in book:
     with open(book,'r') as f:
@@ -97,7 +91,8 @@ for characterRow in range(Matrix.__len__()):
 
 for characterRow in range(Matrix.__len__()):
     for character in range(Matrix.__len__() - (characterRow+1)):
-        G.add_edge(char_int_to_str[characterRow][0], char_int_to_str[character + characterRow+1][0], weight=Matrix[characterRow][character + (characterRow+1)])
+        if Matrix[characterRow][character + (characterRow + 1)] > 0:
+            G.add_edge(char_int_to_str[characterRow][0], char_int_to_str[character + characterRow+1][0], weight=Matrix[characterRow][character + (characterRow+1)])
 
 
 for characterRow in range(Matrix.__len__()):
@@ -110,7 +105,6 @@ else:
     similarityRanks = nx.pagerank(G)
 
 pg = nx.pagerank(G)
-
 
 parts = community.best_partition(G)
 
@@ -148,12 +142,137 @@ if withFriends:
 
 sorted_x = sorted(result.items(), key=operator.itemgetter(1), reverse=True)
 
-index = 0
-for character in sorted_x:
-        if index >= sizeFriendsBase and index < (sizeFriendsBase+3):
-            print(character)
-        index += 1
 
 with open('gameofthrones.json', 'w') as outfile:
     json.dump(data, outfile)
 
+
+def tfidfVSsimRank(thresholdTFIDF):
+    path = 'characterCorpus'
+    documents = [f for f in os.listdir(path) if f.endswith('.json')]
+    documents.remove("TFIDFScores.json")
+    documents.remove("IDFScores.json")
+    # print documents
+
+    with open("characterCorpus/TFIDFScores.json") as data_file:
+        results = json.load(data_file)
+
+    thresholdSimrank = 0.0
+    thresholdTFIDF = thresholdTFIDF
+
+    truePositive = 0
+    falsePositive = 0
+    for character in char_int_to_str:
+        character = char_int_to_str[character][0]
+        simrankBase = {}
+        for characterRow in range(Matrix.__len__()):
+            if (char_int_to_str[characterRow][0]) not in simrankBase :
+                xy = (char_int_to_str[characterRow][0])
+                simrankBase[xy] = 0
+        simrankBase[character] = 1.0
+        similarityRanks = nx.pagerank(G, personalization=simrankBase)
+
+        for characterX in pg:
+            result[characterX] = similarityRanks[characterX] / pg[characterX]
+        sorted_x = sorted(result.items(), key=operator.itemgetter(1), reverse=True)
+        index = 0
+        print("For character: " + str(char_int_to_str[char_str_to_int[character]][0]) + " most similar characters are below:")
+        for characterY in sorted_x:
+            if index >= sizeFriendsBase and index < (sizeFriendsBase + 3) and characterY[1] > thresholdSimrank:
+                first = convertDictToList(results, (character+".json"))
+                second = convertDictToList(results, (characterY[0]+".json"))
+                distanceResult =  distance(first, second)
+                print "Distance between " + character + " and " + str(characterY[0]) + " is: " + str(distanceResult)
+                if distanceResult > thresholdTFIDF:
+                    print ("TRUE POSITIVE!!")
+                    truePositive += 1
+                else:
+                    print("FALSE POSITIVE :(")
+                    falsePositive += 1
+            index += 1
+
+    total = truePositive + falsePositive
+
+    print "Among " + str(total)+ " predictions:"
+    print "True positives are: " + str(truePositive)
+    print "False positives are: " + str(falsePositive)
+
+def commDetVSsimRank(threshold):
+    truePositive = 0
+    falsePositive = 0
+    for character in char_int_to_str:
+        characterToCompare = char_int_to_str[character][0]
+        simrankBase = {}
+        for characterRow in range(Matrix.__len__()):
+            if (char_int_to_str[characterRow][0]) not in simrankBase :
+                xy = (char_int_to_str[characterRow][0])
+                simrankBase[xy] = 0
+        simrankBase[characterToCompare] = 1.0
+        similarityRanks = nx.pagerank(G, personalization=simrankBase)
+
+        for characterX in pg:
+            result[characterX] = similarityRanks[characterX] / pg[characterX]
+        sorted_x = sorted(result.items(), key=operator.itemgetter(1), reverse=True)
+
+        index = 0
+        groupNo = parts[characterToCompare]
+        groupSize = 0
+
+        for character in parts:
+            if parts[character] == groupNo:
+                groupSize += 1
+        print("-------------------------------------------")
+        print("For character: " + characterToCompare + " most " + str(groupSize) + " similar characters are below:")
+        for character_tuple in sorted_x:
+            if index >= sizeFriendsBase and index < (sizeFriendsBase + groupSize) and character_tuple[1] > threshold:
+                print(str(character_tuple) + " has been found as a result of simrank.")
+                if parts[character_tuple[0]] == groupNo:
+                    truePositive += 1
+                    print("TRUE POSITIVE!!")
+                else:
+                    falsePositive += 1
+                    print("FALSE POSITIVE :(")
+            index += 1
+        print("-------------------------------------------")
+    total = truePositive + falsePositive
+
+    print "Among " + str(total) + " predictions:"
+    print "True positives are: " + str(truePositive)
+    print "False positives are: " + str(falsePositive)
+
+def commDetVStfidf(thresholdTFIDF):
+    truePositive = 0
+    falsePositive = 0
+    path = 'characterCorpus'
+    documents = [f for f in os.listdir(path) if f.endswith('.json')]
+    if documents.count("TFIDFScores.json") > 0:
+        documents.remove("TFIDFScores.json")
+    if documents.count("IDFScores.json") > 0:
+        documents.remove("IDFScores.json")
+    with open("characterCorpus/TFIDFScores.json") as data_file:
+        results = json.load(data_file)
+    characterXSim = {}
+    for firstCharacter in documents:
+        for secondCharacter in documents:
+            first = convertDictToList(results, firstCharacter)
+            second = convertDictToList(results, secondCharacter)
+            distanceFirst_Second = distance(first, second)
+            if distanceFirst_Second > thresholdTFIDF:
+                firstCharacterGroup = parts[firstCharacter.split(".")[0]]
+                secondCharacterGroup = parts[secondCharacter.split(".")[0]]
+                if firstCharacterGroup == secondCharacterGroup:
+                    #characterXSim[firstCharacter][secondCharacter] = distanceFirst_Second
+                    truePositive += 1
+                else:
+                    falsePositive += 1
+
+    total = truePositive + falsePositive
+
+    print "Among " + str(total) + " predictions:"
+    print "True positives are: " + str(truePositive)
+    print "False positives are: " + str(falsePositive)
+
+
+#commDetVStfidf(thresholdTFIDF=0.22)
+#commDetVSsimRank(threshold=1.1)
+#tfidfVSsimRank(thresholdTFIDF=0.17)
